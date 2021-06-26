@@ -25,6 +25,7 @@ data_gen_args = dict(rotation_range=0.2,
                     fill_mode='nearest')
 
 
+
 #early_stopping = EarlyStopping(patience=10, verbose=1)
 reduce_lr = ReduceLROnPlateau(monitor='loss', factor=3e-6, patience=5, min_lr=1e-6, verbose=1)
 

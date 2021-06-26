@@ -47,9 +47,16 @@ def adjustData(img, mask, flag_multi_class, num_class):
     return (img, mask)
 
 
-def trainGenerator(batch_size, train_path, image_folder, mask_folder, aug_dict, image_color_mode="grayscale",
+# def validateGenerator(val_path, image_folder, mask_folder, flag_multi_class=False, num_class=2, target_size=(256, 256)):
+#     img =
+#     mask =
+#     yield (img, mask)
+
+
+def trainGenerator(train_path, image_folder, mask_folder, aug_dict, image_color_mode="grayscale",
                    mask_color_mode="grayscale", image_save_prefix="image", mask_save_prefix="mask",
-                   flag_multi_class=False, num_class=2, save_to_dir=None, target_size=(256, 256), seed=1):
+                   flag_multi_class=False, num_class=2, save_to_dir=None, target_size=(256, 256), batch_size=32,
+                   seed=1):
     '''
     can generate image and mask at the same time
     use the same seed for image_datagen and mask_datagen to ensure the transformation for image and mask is the same
@@ -82,15 +89,47 @@ def trainGenerator(batch_size, train_path, image_folder, mask_folder, aug_dict, 
         img, mask = adjustData(img, mask, flag_multi_class, num_class)
         yield (img, mask)
 
+def validateGenerator(val_path, image_folder, mask_folder, image_color_mode="grayscale",
+                      mask_color_mode="grayscale",
+                      flag_multi_class=False, num_class=2, target_size=(256, 256), batch_size=32):
+    '''
 
-def testGenerator(test_path, num_image=30, target_size=(256, 256), flag_multi_class=False, as_gray=True):
+    '''
+    count=0
+    image_datagen = ImageDataGenerator(rescale=1. / 255)
+    mask_datagen = ImageDataGenerator(rescale=1. / 255)
+
+    image_generator = image_datagen.flow_from_directory(
+        val_path,
+        classes=[image_folder],
+        class_mode=None,
+        color_mode=image_color_mode,
+        target_size=target_size,
+        batch_size=batch_size)
+    mask_generator = mask_datagen.flow_from_directory(
+        val_path,
+        classes=[mask_folder],
+        class_mode=None,
+        color_mode=mask_color_mode,
+        target_size=target_size,
+        batch_size=batch_size)
+    val_generator = zip(image_generator, mask_generator)
+    for (img, mask) in val_generator:
+        img, mask = adjustData(img, mask, flag_multi_class, num_class)
+        yield (img, mask)
+
+
+# This failed to work on color images, but OK for bw :-?
+def testGenerator(test_path, num_image=30, target_size=(256, 256), flag_multi_class=False, as_gray=True, as_jpg=False):
     for i in range(num_image):
-        img = io.imread(os.path.join(test_path, "%d.png" % i), as_gray=as_gray)
+        if (as_jpg) :
+            img = io.imread(os.path.join(test_path, "%d.jpg" % i), as_gray=as_gray)
+        else :
+            img = io.imread(os.path.join(test_path, "%d.png" % i), as_gray=as_gray)
         img = trans.resize(img, target_size)
-        img = np.reshape(img, img.shape + (1,)) if (not flag_multi_class) else img
-        img = np.reshape(img, (1,) + img.shape)
+#        img = np.reshape(img, img.shape + (1,)) if (not flag_multi_class) else img
+#        img = np.reshape(img, (1,) + img.shape)
         yield img
-
 
 # This seems to be a test method
 def geneTrainNpy(image_path, mask_path, flag_multi_class=False, num_class=2, image_prefix="image", mask_prefix="mask",

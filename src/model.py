@@ -2,7 +2,7 @@ from tensorflow.keras.layers import *
 from tensorflow.keras.optimizers import *
 from tensorflow.python.keras import Model
 
-def unet(pretrained_weights=None, input_size=(256, 256, 1)):
+def unet(pretrained_weights=None, input_size=(256, 256, 1), learningRate=1e-4):
     inputs = Input(shape=input_size)
     conv1 = Conv2D(64, 3, activation='relu', padding='same', kernel_initializer='he_normal')(inputs)
     conv1 = Conv2D(64, 3, activation='relu', padding='same', kernel_initializer='he_normal')(conv1)
@@ -50,7 +50,7 @@ def unet(pretrained_weights=None, input_size=(256, 256, 1)):
 
     model: Model = Model(inputs=inputs, outputs=conv10, name="u-net")
 
-    model.compile(optimizer=Adam(lr=3e-5), loss='binary_crossentropy', metrics=['accuracy'])
+    model.compile(optimizer=Adam(lr=learningRate), loss='binary_crossentropy', metrics=['accuracy'])
 
     model.summary()
 
