@@ -1,5 +1,6 @@
 from tensorflow.keras.layers import *
 from tensorflow.keras.optimizers import *
+from tensorflow.keras import regularizers
 from tensorflow.python.keras import Model
 
 def unet(pretrained_weights=None, input_size=(256, 256, 1), learningRate=1e-4):

@@ -32,7 +32,7 @@ tensorboard_callback = TensorBoard(log_dir='../logs', histogram_freq=1)
 
 
 x_size = 256; y_size = 256 # Input internal image size, external images are resized to this (x,y) format.
-batchSize = 2
+batchSize = 4
 rate = 3e-4
 
 model = unet(input_size=(x_size, y_size, 3), learningRate=rate)
@@ -67,16 +67,18 @@ test_generator = test_datagen.flow_from_directory(
         batch_size=1)
 
 # Model training
-trainSamples = 1000
-valSamples = 700
+trainSamples = 2000
+valSamples = 750
 numEpochs = 100
+# classWeight = {0: 0.2, 1: 0.8} # Tennis racket class (1) occurs often in just a small fraction of the image
 model.fit(trainGen,
-          steps_per_epoch=trainSamples,
+          steps_per_epoch=trainSamples/batchSize,
           validation_data=validateGen,
           validation_steps=valSamples,
           validation_freq=2,
           epochs=numEpochs,
           batch_size=batchSize,
+          # class_weight=classWeight,
           callbacks=[model_checkpoint, reduce_lr, tensorboard_callback])
 
 # Load model from previous training

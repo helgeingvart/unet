@@ -27,8 +27,8 @@ coco=COCO(annFile)
 catIds = coco.getCatIds(catNms=['tennis racket'])
 imgIds = coco.getImgIds(catIds=catIds)
 
-numTrainSamples = 1000
-numValidateSamples = 700
+numTrainSamples = 2000
+numValidateSamples = 750
 numTestSamples = 100
 
 images = coco.loadImgs(imgIds)

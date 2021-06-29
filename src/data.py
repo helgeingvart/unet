@@ -46,13 +46,6 @@ def adjustData(img, mask, flag_multi_class, num_class):
         mask[mask <= 0.5] = 0
     return (img, mask)
 
-
-# def validateGenerator(val_path, image_folder, mask_folder, flag_multi_class=False, num_class=2, target_size=(256, 256)):
-#     img =
-#     mask =
-#     yield (img, mask)
-
-
 def trainGenerator(train_path, image_folder, mask_folder, aug_dict, image_color_mode="grayscale",
                    mask_color_mode="grayscale", image_save_prefix="image", mask_save_prefix="mask",
                    flag_multi_class=False, num_class=2, save_to_dir=None, target_size=(256, 256), batch_size=32,
