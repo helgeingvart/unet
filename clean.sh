@@ -1,7 +1,5 @@
-rm data/coco/result/*
-rm data/coco/train/image/*
-rm data/coco/train/mask/*
-rm data/coco/validate/image/*
-rm data/coco/validate/mask/*
+rm -rf data/coco/result/*
+rm -rf data/coco/train/*
+rm -rf data/coco/validate/*
 rm -rf logs/*
 

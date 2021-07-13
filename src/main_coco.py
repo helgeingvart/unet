@@ -12,9 +12,12 @@ from IPython.display import clear_output
 
 from model import *
 from data import *
+import argparse
 
-#os.environ["CUDA_VISIBLE_DEVICES"] = "0"
+parser = argparse.ArgumentParser()
+parser.add_argument("-t", "--testing", help="Run testing from stored model", action="store_true")
 
+args = parser.parse_args()
 
 data_gen_args = dict(rotation_range=0.2,
                     width_shift_range=0.05,
@@ -32,67 +35,54 @@ tensorboard_callback = TensorBoard(log_dir='../logs', histogram_freq=1)
 
 
 x_size = 256; y_size = 256 # Input internal image size, external images are resized to this (x,y) format.
-batchSize = 4
-rate = 3e-4
+batchSize = 4 # How many batches the training data is split into.
+rate = 3e-4  # Learning rate
+classes=3  # Includes the types of objects to detect in addition to the class belonging to none of the object-types (background)
 
-model = unet(input_size=(x_size, y_size, 3), learningRate=rate)
+model = unet(input_size=(x_size, y_size, 3), learningRate=rate, num_classes=classes)
 
 # Training and validation generators
 trainGen = trainGenerator(train_path='../data/coco/train',
-                          image_folder='image',
-                          mask_folder='mask',
                           aug_dict=data_gen_args,
-                          save_to_dir = None,
                           image_color_mode="rgb",
                           mask_color_mode="grayscale",
                           target_size=(x_size, y_size),
-                          batch_size=batchSize)
+                          batch_size=batchSize) #, flag_multi_class=True, num_class=4)
 
 validateGen = validateGenerator(val_path='../data/coco/validate',
-                          image_folder='image',
-                          mask_folder='mask',
                           image_color_mode="rgb",
                           mask_color_mode="grayscale",
                           target_size=(x_size, y_size),
-                          batch_size=batchSize)
+                          batch_size=batchSize ) #, flag_multi_class=True, num_class=4)
 
 # Testing generator
 test_datagen = ImageDataGenerator(rescale=1./255)
 test_generator = test_datagen.flow_from_directory(
-        '/home/helge/dev/unet/data/coco/test',
+        '../data/coco/test',
         target_size=(x_size, y_size),
         color_mode="rgb",
         shuffle = False,
-        class_mode='binary',
+        # class_mode='binary',
+        class_mode='categorical',
         batch_size=1)
 
 # Model training
-trainSamples = 2000
-valSamples = 750
-numEpochs = 100
-# classWeight = {0: 0.2, 1: 0.8} # Tennis racket class (1) occurs often in just a small fraction of the image
-model.fit(trainGen,
-          steps_per_epoch=trainSamples/batchSize,
-          validation_data=validateGen,
-          validation_steps=valSamples,
-          validation_freq=2,
-          epochs=numEpochs,
-          batch_size=batchSize,
-          # class_weight=classWeight,
-          callbacks=[model_checkpoint, reduce_lr, tensorboard_callback])
 
-# Load model from previous training
-# model.load_weights('coco.hdf5')
+trainSamples = 1000
+valSamples = 400
+numEpochs = 200
 
-
-# Test phase
-results = model.predict(test_generator,verbose=1)
-saveResult("../data/coco/result",results)
-
-# This did not work...
-#testGene = testGenerator('../data/coco/validate',as_gray=False, num_image=14, target_size=(320, 240), as_jpg=True)
-
-# Code for looking at the filenames in the generators.
-# filenames = test_generator.filenames
-# for file in filenames :
-#     print(file)
+if args.testing :
+    # Load model from previous training
+    model.load_weights('coco.hdf5')
+    results = model.predict(test_generator, verbose=1)
+    saveResult("../data/coco/result", results, classes)
+else:
+    model.fit(trainGen,
+        steps_per_epoch=trainSamples/batchSize,
+        validation_data=validateGen,
+        validation_steps=valSamples,
+        validation_freq=2,
+        epochs=numEpochs,
+        batch_size=batchSize,
+        callbacks=[model_checkpoint, reduce_lr, tensorboard_callback])

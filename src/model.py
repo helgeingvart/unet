@@ -1,9 +1,10 @@
 from tensorflow.keras.layers import *
 from tensorflow.keras.optimizers import *
-from tensorflow.keras import regularizers
+from tensorflow.keras import initializers
 from tensorflow.python.keras import Model
+from tensorflow.python.keras import losses
 
-def unet(pretrained_weights=None, input_size=(256, 256, 1), learningRate=1e-4):
+def unet(pretrained_weights=None, input_size=(256, 256, 1), learningRate=1e-4, num_classes=2):
     inputs = Input(shape=input_size)
     conv1 = Conv2D(64, 3, activation='relu', padding='same', kernel_initializer='he_normal')(inputs)
     conv1 = Conv2D(64, 3, activation='relu', padding='same', kernel_initializer='he_normal')(conv1)
@@ -47,11 +48,14 @@ def unet(pretrained_weights=None, input_size=(256, 256, 1), learningRate=1e-4):
     conv9 = Conv2D(64, 3, activation='relu', padding='same', kernel_initializer='he_normal')(merge9)
     conv9 = Conv2D(64, 3, activation='relu', padding='same', kernel_initializer='he_normal')(conv9)
     conv9 = Conv2D(2, 3, activation='relu', padding='same', kernel_initializer='he_normal')(conv9)
-    conv10 = Conv2D(1, 1, activation='sigmoid')(conv9)
+    # conv10 = Conv2D(1, 1, activation='sigmoid')(conv9)
+    conv10 = Conv2D(num_classes, 1, activation='softmax')(conv9)
 
     model: Model = Model(inputs=inputs, outputs=conv10, name="u-net")
 
-    model.compile(optimizer=Adam(lr=learningRate), loss='binary_crossentropy', metrics=['accuracy'])
+    # model.compile(optimizer=Adam(lr=learningRate), loss='binary_crossentropy', metrics=['accuracy'])
+    # model.compile(optimizer=Adam(lr=learningRate), loss='categorical_crossentropy', metrics=['accuracy'])
+    model.compile(optimizer=Adam(lr=learningRate), loss=losses.SparseCategoricalCrossentropy(from_logits=True), metrics=['accuracy'])
 
     model.summary()
 

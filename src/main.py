@@ -37,5 +37,5 @@ model.fit(myGene,steps_per_epoch=30,epochs=600,callbacks=[model_checkpoint,reduc
 # model.load_weights('unet_rib-segments.hdf5')
 
 testGene = testGenerator("../data/Harnverhalt/test",4)
-results = model.predict(testGene,30,verbose=1)
+results = model.predict(testGene, verbose=1)
 saveResult("../data/Harnverhalt/test",results)
