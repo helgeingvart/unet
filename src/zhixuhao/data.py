@@ -98,7 +98,7 @@ def testGenerator(test_path, num_image=30, target_size=(256, 256), as_gray=True,
         img = trans.resize(img, target_size)
         yield img
 
-def labelVisualize(num_class, color_dict, img):
+def labelVisualize(num_class: int, color_dict, img) :
 
     img_out = np.zeros((numpy.shape(img)[0], numpy.shape(img)[1], 3))  # Create standard rgb image
     for i in range(num_class):

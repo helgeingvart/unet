@@ -53,9 +53,8 @@ def unet(pretrained_weights=None, input_size=(256, 256, 1), learningRate=1e-4, n
 
     model: Model = Model(inputs=inputs, outputs=conv10, name="u-net")
 
-    # model.compile(optimizer=Adam(lr=learningRate), loss='binary_crossentropy', metrics=['accuracy'])
-    # model.compile(optimizer=Adam(lr=learningRate), loss='categorical_crossentropy', metrics=['accuracy'])
-    model.compile(optimizer=Adam(lr=learningRate), loss=losses.SparseCategoricalCrossentropy(from_logits=True), metrics=['accuracy'])
+    model.compile(optimizer=Adam(lr=learningRate), loss='binary_crossentropy', metrics=['accuracy'])
+    # model.compile(optimizer=Adam(lr=learningRate), loss=losses.SparseCategoricalCrossentropy(from_logits=True), metrics=['accuracy'])
 
     model.summary()
 

@@ -26,8 +26,7 @@ dataType = 'train2017'
 annFile = '{}/annotations/instances_{}.json'.format(dataDir, dataType)
 coco = COCO(annFile)
 
-categoryNames = ['person', 'tennis racket', 'sports ball']
-# categoryNames = ['tennis racket']
+categoryNames = ['tennis racket', 'sports ball'] #, 'person']
 
 numTrainSamples = 500
 numValidateSamples = 200

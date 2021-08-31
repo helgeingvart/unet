@@ -1,15 +1,5 @@
 from tensorflow.python.keras.callbacks import ModelCheckpoint, ReduceLROnPlateau, EarlyStopping, TensorBoard
 
-import keras
-from keras.datasets import mnist
-from keras.utils import to_categorical
-from keras.models import Sequential
-from keras.layers import Flatten, Dense, Activation
-
-import numpy as np
-from matplotlib import pyplot as plt
-from IPython.display import clear_output
-
 from model import *
 from data import *
 import argparse
@@ -30,8 +20,8 @@ data_gen_args = dict(rotation_range=0.2,
 
 #early_stopping = EarlyStopping(patience=10, verbose=1)
 reduce_lr = ReduceLROnPlateau(monitor='loss', factor=3e-6, patience=5, min_lr=1e-6, verbose=1)
-model_checkpoint = ModelCheckpoint('coco.hdf5', monitor='loss',verbose=1, save_best_only=True)
-tensorboard_callback = TensorBoard(log_dir='../logs', histogram_freq=1)
+model_checkpoint = ModelCheckpoint('../coco.hdf5', monitor='loss', verbose=1, save_best_only=True)
+tensorboard_callback = TensorBoard(log_dir='../../logs', histogram_freq=1)
 
 
 x_size = 256; y_size = 256 # Input internal image size, external images are resized to this (x,y) format.
@@ -42,18 +32,18 @@ classes=3  # Includes the types of objects to detect in addition to the class be
 model = unet(input_size=(x_size, y_size, 3), learningRate=rate, num_classes=classes)
 
 # Training and validation generators
-trainGen = trainGenerator(train_path='../data/coco/train',
+trainGen = trainGenerator(train_path='../../data/coco/train',
                           aug_dict=data_gen_args,
                           image_color_mode="rgb",
                           mask_color_mode="grayscale",
                           target_size=(x_size, y_size),
                           batch_size=batchSize) #, flag_multi_class=True, num_class=4)
 
-validateGen = validateGenerator(val_path='../data/coco/validate',
-                          image_color_mode="rgb",
-                          mask_color_mode="grayscale",
-                          target_size=(x_size, y_size),
-                          batch_size=batchSize ) #, flag_multi_class=True, num_class=4)
+validateGen = validateGenerator(val_path='../../data/coco/validate',
+                                image_color_mode="rgb",
+                                mask_color_mode="grayscale",
+                                target_size=(x_size, y_size),
+                                batch_size=batchSize) #, flag_multi_class=True, num_class=4)
 
 # Testing generator
 test_datagen = ImageDataGenerator(rescale=1./255)
@@ -76,7 +66,7 @@ if args.testing :
     # Load model from previous training
     model.load_weights('coco.hdf5')
     results = model.predict(test_generator, verbose=1)
-    saveResult("../data/coco/result", results, classes)
+    saveResult("../../data/coco/result", results, classes)
 else:
     model.fit(trainGen,
         steps_per_epoch=trainSamples/batchSize,
